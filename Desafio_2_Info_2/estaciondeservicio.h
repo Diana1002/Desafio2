@@ -3,32 +3,23 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <string>
 using namespace std;
 
 class EstacionDeServicio
 {
 public:
-    //Métodos
     EstacionDeServicio();
-    void leerArchivo(short int id, string& nomArchivo);
-    //Métodos get
-    string getNombre() const;
-    string getGerente() const;
-    string getRegion() const;
+    short int* crearSurtidor(short int nEstacion);
+
     short getIdentificador() const;
-    const float* getUbicacionGPS() const;
-    const int* getTanqueCentral() const;
+    void setIdentificador(short newIdentificador);
 
 private:
-    //Atributos
-    string nombre, gerente, region;
-    short int identificador;
-    float ubicacionGPS[2];
     int tanqueCentral[3];
+    short int identificador;
+    string modelosMaquina[5] = {"MS-1","MS-2","MS-3","MS-4","MS-5"};
 
-    short int convertirAEntero(const string& str);
-    float convertirAFloat(const string& str);
 };
 
 #endif // ESTACIONDESERVICIO_H

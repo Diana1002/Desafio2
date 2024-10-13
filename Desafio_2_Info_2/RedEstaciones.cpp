@@ -1,6 +1,14 @@
 #include "RedEstaciones.h"
 
 RedEstaciones::RedEstaciones() {}
+
+void RedEstaciones::cargarRed(string path)
+{
+    nomArchivo = path;
+    abrirBaseDatos();
+
+
+}
 short int RedEstaciones::convertirAEntero(const string& str){
     short int resultado = 0;
     for (char c:str){
@@ -27,9 +35,9 @@ float RedEstaciones::convertirAFloat(const string& str){
     if (negativo) resultado = -resultado;
     return resultado;
 }
-void RedEstaciones:: abrirBaseDatos(short int id){
-    string nombreArchivo = getNomArchivo();
-    ifstream archivo(nombreArchivo);
+void RedEstaciones:: abrirBaseDatos(){
+
+    ifstream archivo(nomArchivo);
     string linea;
     char delimitador = ',';
     bool encontrado = false;
@@ -57,24 +65,21 @@ void RedEstaciones:: abrirBaseDatos(short int id){
 
         short int idEstacion = convertirAEntero(campos[0]);
 
-        if (idEstacion == id){
+        /*if (idEstacion == id){
             identificador = idEstacion;
             nombre = campos[1];
             gerente = campos[2];
             region = campos[3];
 
-            ubicacionGPS[0] = convertirAFloat(campos[4]);
-            ubicacionGPS[1] = convertirAFloat(campos[5]);
+            longitud = convertirAFloat(campos[4]);
+            altitud = convertirAFloat(campos[5]);
 
             tanqueCentral[0] = convertirAEntero(campos[6]);
             tanqueCentral[1] = convertirAEntero(campos[7]);
             tanqueCentral[2] = convertirAEntero(campos[8]);
             encontrado = true;
             break;
-        }
-    }
-    if(!encontrado){
-        cout<<"No se encontro la estacion con el ID: "<<id<<endl;
+        }*/
     }
     archivo.close();
 }
@@ -108,9 +113,8 @@ void RedEstaciones::crearEstacion(){
     getline(cin, aux);
     nueva += aux;
     cout<<nueva<<endl;
-    string nombreArchivo = getNomArchivo();
     // Abrir el archivo en modo append
-    ofstream archivo(nombreArchivo, ios::app);
+    ofstream archivo(nomArchivo, ios::app);
 
     // Verificar si el archivo se abrió correctamente
     if (archivo.is_open()) {
@@ -121,36 +125,4 @@ void RedEstaciones::crearEstacion(){
     } else {
         cerr << "Error al abrir la base de datos" << endl;
     }
-}
-string RedEstaciones::getNombre() const
-{
-    return nombre;
-}
-string RedEstaciones::getGerente() const
-{
-    return gerente;
-}
-string RedEstaciones::getRegion() const
-{
-    return region;
-}
-short RedEstaciones::getIdentificador() const
-{
-    return identificador;
-}
-const float* RedEstaciones::getUbicacionGPS() const
-{
-    return ubicacionGPS;
-}
-const int* RedEstaciones::getTanqueCentral() const
-{
-    return tanqueCentral;
-}
-string RedEstaciones::getNomArchivo() const
-{
-    return nomArchivo;
-}
-void RedEstaciones::setNomArchivo(const string &newNomArchivo)
-{
-    nomArchivo = newNomArchivo;
 }

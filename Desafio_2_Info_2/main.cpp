@@ -1,21 +1,18 @@
 #include <QCoreApplication>
-#include <iostream>
-#include <cstdlib>
-#include "RedEstaciones.h"
+
+//#include "RedEstaciones.h"
 #include "estaciondeservicio.h"
+
 using namespace std;
 
 int main(){
-    EstacionDeServicio estacion;
-    short int n = 2;
-    short int* surtidor1 = estacion.crearSurtidor(n);
+    //RedEstaciones Red;
+    //string n = "C:\\Users\\Asus\\Documents\\DIANA BAEZA RUIZ\\SEMESTRE 2024-2\\Desafio2\\BaseDeDatos.txt";
+    //Red.cargarRed(n);
+    EstacionDeServicio Estacion(1, "La Maria", "William", "Sur",12.34,-13.56, 130,20,50);
+    Estacion.crearSurtidor(2, "m_19");
+    Estacion.Surtidores[0]->Vender("Gj","Gj","Gj","Gj","Gj","Gj","Gj");
 
-    cout<< surtidor1[0]<<endl;
-    cout<< surtidor1[1]<<endl;
-    cout<< surtidor1[2]<<endl;
-    cout<< surtidor1[3]<<endl;
-    cout<< surtidor1[4]<<endl;
-    cout<< surtidor1[5]<<endl;
-
-    delete[] surtidor1;
+    cout<<Estacion.getGerente()<<endl;
+    cout<<*(Estacion.Surtidores[0]->registroVentas[0])<<endl;
 }

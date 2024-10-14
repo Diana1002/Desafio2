@@ -22,7 +22,6 @@ void EstacionDeServicio::crearSurtidor(short _codigoID, string _modelo)
 
     Surtidores[nSurtidores++] = new Surtidor(_codigoID, _modelo);
     nSurtidores %= maxSurtidores;
-    //Surtidores.append(newSurtidor);
 }
 
 

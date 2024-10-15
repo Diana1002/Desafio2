@@ -17,6 +17,4 @@ int main(){
 
     cout<<Estacion.getGerente()<<endl;
     cout<<*(Estacion.Surtidores[0]->registroVentas[0])<<endl;*/
-
-
 }

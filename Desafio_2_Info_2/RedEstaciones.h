@@ -14,6 +14,7 @@ public:
     void abrirBaseDatos();
     void crearEstacion();
     void cargarRed(string path);
+    void eliminarEstacion(short int identificador);
 private:
     int nEstaciones = 0;
     const int maxEstaciones = 35;

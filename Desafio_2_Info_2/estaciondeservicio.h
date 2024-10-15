@@ -16,6 +16,7 @@ public:
     Surtidor* Surtidores[12];
 
     void crearSurtidor(short int _codigoID, string _modelo);
+    void eliminarSurtidor(short codigoID);
 
     short getIdentificador() const;
     void setIdentificador(short newIdentificador);

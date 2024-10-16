@@ -19,6 +19,9 @@ private:
     int nEstaciones = 0;
     const int maxEstaciones = 35;
     EstacionDeServicio* Estaciones[35];
+    int precioRegular;
+    int precioPremium;
+    int preciosEcoExtra;
 
     string nomArchivo;
     void SepararString(const string& texto, const string& limitador1, const string& limitador2, string* bloques, int& cantidadBloques);

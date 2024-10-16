@@ -15,7 +15,7 @@
  * vacío al incio
 */
 
-Surtidor::Surtidor(short int _codigoID, string _modelo) {
+Surtidor::Surtidor(short int _codigoID, string _modelo, bool estado) {
     codigoID = _codigoID;
     modelo = _modelo;
     intRegistro = 0;
@@ -24,6 +24,15 @@ Surtidor::Surtidor(short int _codigoID, string _modelo) {
 
     }
 }
+
+/*Surtidor::~Surtidor()
+{
+    for(int i=0; i<maxVentas;i++){
+        delete registroVentas[i];
+    }
+
+    //delete[] registroVentas;
+}*/
 /*Vender: Registra una nueva venta en el surtidor
  * ALmacena una nueva venta en el registro, para esto necesita, fecha, hora,
  * cantidad, categoria de combustible, método de pago, cédula del cielte
@@ -43,7 +52,10 @@ void Surtidor::Vender(string fecha, string hora, string cantidad, string categor
 {
     string venta = fecha+","+hora+","+cantidad+","+categoria+","+metPago+","+cedula+","+dinero;
     registroVentas[intRegistro] = new string(venta);
+    cantLitros = cantidad;
 
     intRegistro += 1;
     intRegistro %= maxVentas;//Cuando el maximo de ventas es 5 se reinicia a la posicion 0
 }
+
+

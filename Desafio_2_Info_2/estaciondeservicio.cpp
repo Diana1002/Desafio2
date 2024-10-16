@@ -23,7 +23,7 @@
  * _Premium: Disponibilidad de combustible Premium.
  * _EcoExtra: Disponibilidad de combustible EcoExtra.
 */
-EstacionDeServicio::EstacionDeServicio(short _identificador, string _nombre, string _gerente, string _region, float _longitud, float _altitud, short _Regular, short _Premium, short _EcoExtra)
+EstacionDeServicio::EstacionDeServicio(short _identificador, string _nombre, string _gerente, string _region, string _longitud, string _altitud, short _Regular, short _Premium, short _EcoExtra)
 {
     identificador = _identificador;
     nombre = _nombre;
@@ -46,9 +46,9 @@ EstacionDeServicio::EstacionDeServicio(short _identificador, string _nombre, str
  * _modelo: Modelo del surtidor.
  */
 
-void EstacionDeServicio::crearSurtidor(short _codigoID, string _modelo)
+void EstacionDeServicio::crearSurtidor(short _codigoID, string _modelo, bool _estado)
 {
-    Surtidores[nSurtidores++] = new Surtidor(_codigoID, _modelo);
+    Surtidores[nSurtidores++] = new Surtidor(_codigoID, _modelo, _estado);
     nSurtidores %= maxSurtidores;
 }
 /**
@@ -60,7 +60,7 @@ void EstacionDeServicio::eliminarSurtidor(short codigoID) {
     for (int i = 0; i < nSurtidores; ++i) {
         if (Surtidores[i] && Surtidores[i]->codigoID == codigoID) {
             // Liberar la memoria del surtidor encontrado
-            delete Surtidores[i];
+            //delete Surtidores[i];
             surtidorEliminado = true;
 
             // Mover los surtidores restantes una posición hacia atrás
@@ -79,6 +79,17 @@ void EstacionDeServicio::eliminarSurtidor(short codigoID) {
     if (!surtidorEliminado) {
         cout << "No se encontró ningún surtidor con el código " << codigoID << "." << endl;
     }
+}
+void EstacionDeServicio::activarDesactivarSurtidor(short codigoID) {
+    for (int i = 0; i < nSurtidores; ++i) {
+        if (Surtidores[i] && Surtidores[i]->codigoID == codigoID) {
+            Surtidores[i]->estado = !Surtidores[i]->estado; // Cambiar el estado del surtidor
+            cout << "Surtidor con codigo " << codigoID << " ha sido "
+                 << (Surtidores[i]->estado ? "activado." : "desactivado.") << endl;
+            return;
+        }
+    }
+    cout << "No se encontró ningún surtidor con el código " << codigoID << "." << endl;
 }
 
 //Devuelve el identificador de la estación. Retorna Identificador de la estación.
@@ -115,19 +126,19 @@ void EstacionDeServicio::setRegion(const string &newRegion)
 {
     region = newRegion;
 }
-float EstacionDeServicio::getLongitud() const
+string EstacionDeServicio::getLongitud() const
 {
     return longitud;
 }
-void EstacionDeServicio::setLongitud(float newLongitud)
+void EstacionDeServicio::setLongitud(string newLongitud)
 {
     longitud = newLongitud;
 }
-float EstacionDeServicio::getAltitud() const
+string EstacionDeServicio::getAltitud() const
 {
     return altitud;
 }
-void EstacionDeServicio::setAltitud(float newAltitud)
+void EstacionDeServicio::setAltitud(string newAltitud)
 {
     altitud = newAltitud;
 }

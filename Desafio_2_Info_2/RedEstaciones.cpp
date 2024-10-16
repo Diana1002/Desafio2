@@ -103,72 +103,109 @@ float RedEstaciones::convertirAFloat(const string& str){
  * Se separan los datos relevantes, se crean las estaciones y surtidores, y se registran las ventas.
  */
 void RedEstaciones:: abrirBaseDatos(){
-
+    //Abrir el archvio de la base de datos
     ifstream archivo(nomArchivo);
     string linea;
 
+    //Verificar si el archivo pudo abrirse correctamente
     if (!archivo.is_open()){
         cerr<< "No se pudo abrir el archivo"<<endl;
         return ;
     }
+
+    //Procesa cada linea del archvio (cada linea representa una E/S)
+    bool ContadorLinea1=true;
     while (getline(archivo, linea)){
-        const int MAX_BLOQUES = 61;  // Número máximo de bloques (1 de la info de la estacion, 12 surtidores y 5 ventas max por cada uno
-        string bloques[MAX_BLOQUES];  // Arreglo de bloques
-        int cantidadBloques = 0;  // Contador de bloques
+        if(ContadorLinea1){
+            string linea0[1];
+            string precios[3];
+            int cntB=0;
+            SepararString(linea,"[","]",linea0, cntB);
+            cntB=0;
+            SepararString(linea0[0], ",",",", precios, cntB);
+            precioRegular = convertirAEntero(precios[0]);
+            precioPremium = convertirAEntero(precios[1]);
+            preciosEcoExtra = convertirAEntero(precios[2]);
 
-        SepararString(linea, "[", "]", bloques, cantidadBloques);
+            ContadorLinea1=false;
+        }
 
-        const int maxBloque1 = 9;  // Número máximo de bloques (1 de la info de la estacion, 12 surtidores y 5 ventas max por cada uno
+        const int MAX_BLOQUES = 62;  // Número máximo de bloques (1 de la info de la estacion, 12 surtidores y 5 ventas max por cada uno
+        string bloques[MAX_BLOQUES];  // Arreglo que almacena los bloques de datos de la E/S
+        int cantidadBloques = 0;  // Contador de bloques de datos
+
+        SepararString(linea, "[", "]", bloques, cantidadBloques);//Separar la linea en bloques delimitador por '[,,,]'
+
+        //Procesa el primer bloque, que contiene la información de la estación
+        const int maxBloque1 = 9;  // Número de bloques para la información de la estación
         string bloque1[maxBloque1];  // Arreglo de bloques
-        int cantBloque1 = 0;  // Contador de bloques
-        SepararString(bloques[0], ",",",", bloque1, cantBloque1);
+        int cantBloque1 = 0;  // Contador de bloques de información de la estación
 
+
+        SepararString(bloques[1], ",",",", bloque1, cantBloque1); //Separar los campos del primer bloque de la estación por comas(,)
+
+        //Asigna los valores de los campos a la varriable que corresponda
         string nomEstacion = bloque1[1], gerente = bloque1[2], region = bloque1[3];
         short int codID = convertirAEntero(bloque1[0]);
-        float longitud = convertirAFloat(bloque1[4]);
-        float latitud = convertirAFloat(bloque1[5]);
+        string longitud = bloque1[4];
+        string latitud = bloque1[5];
         short int capRegular = convertirAEntero(bloque1[6]);
         short int capPremium = convertirAEntero(bloque1[7]);
         short int capEcoExtra = convertirAEntero(bloque1[8]);
 
-
+        //Crea una nueva estacion de servicio y la agrega a la lista de estaciones
         Estaciones[nEstaciones] = new EstacionDeServicio(codID, nomEstacion, gerente, region, longitud, latitud, capRegular, capPremium, capEcoExtra);
 
         //Para los surtidores
-        const int maxBloque2 = 24;  // Número máximo de bloques (1 de la info de la estacion, 12 surtidores y 5 ventas max por cada uno
-        string bloque2[maxBloque2];  // Arreglo de bloques
-        int cantBloque2 = 0;  // Contador de bloques
-        SepararString(bloques[1],",",",",bloque2,cantBloque2);
+        //Se procesa el segundo bloque, que contiene la información de los surtidores
+        const int maxBloque2 = 24;  // Número máximo de bloques para la información de los surtidores
+        string bloque2[maxBloque2];  // Arreglo para los campos de los surtidores
+        int cantBloque2 = 0;  // Contador de bloques de los surtidores
 
-        for (int i = 0; i<cantBloque2; i+=2 ){
+        SepararString(bloques[1],",",",",bloque2,cantBloque2);//Separar los campos de los surtidores por comas (,)
+        //Crear los surtidores asociados a la estación
+        for (int i = 0; i<cantBloque2; i+=3){
             short codigoSurtidor = convertirAEntero(bloque2[i]);
             string modeloSurtidor = bloque2[i+1];
-            Estaciones[nEstaciones]->crearSurtidor(codigoSurtidor, modeloSurtidor);
+            bool estado=false;
+            if(bloque2[i+2]=="activo"){
+                estado = true;
+            }
+            Estaciones[nEstaciones]->crearSurtidor(codigoSurtidor, modeloSurtidor, estado);
         }
+
+        //Procesa el resto de bloques que son las ventas realizadas en los surtidores
         for(int i = 2; i<cantidadBloques;i++){
-            string Bloquesi[9];
-            int cantBloquesi = 0;
+            string Bloquesi[8]; //Arreglo para los campos de cada venta
+            int cantBloquesi = 0;//Contador de los campos de la venta
+
+            //Separa los campos de la venta por comas
             SepararString(bloques[i],",",",",Bloquesi,cantBloquesi);
             bool encontrado = false;
-            for(Surtidor*&ptr:Estaciones[nEstaciones]->Surtidores){
-                if (!ptr){
+
+            for(Surtidor*&ptr:Estaciones[nEstaciones]->Surtidores){//Busca el surtidor correspondiente a la venta actual
+                if (!ptr){ //Si el puntero al surtidor es nulo, lo omiten es decir si el surtidor es no existe
                     continue;
                 }
+                //Verifica si el codigo del surtidor coincide con el de la venta
                 if(ptr->codigoID == convertirAEntero(Bloquesi[0])){
+                    //Realiza la venta en el surtidor encontrado
                     ptr->Vender(Bloquesi[2],Bloquesi[3],Bloquesi[4],Bloquesi[5],Bloquesi[6],Bloquesi[7],Bloquesi[8]);
                     encontrado = true;
                     break;
                 }
             }
+            //Si no se encontro el surtidor, entonces lo creaa
             if(!encontrado){
-                Estaciones[nEstaciones]->crearSurtidor(convertirAEntero(Bloquesi[0]), Bloquesi[1]);
+                Estaciones[nEstaciones]->crearSurtidor(convertirAEntero(Bloquesi[0]), Bloquesi[1],true);
                 int posicion = Estaciones[nEstaciones]->nSurtidores;
                 Estaciones[nEstaciones]->Surtidores[posicion-1]->Vender(Bloquesi[2],Bloquesi[3],Bloquesi[4],Bloquesi[5],Bloquesi[6],Bloquesi[7],Bloquesi[8]);
             }
         }
-        nEstaciones++;
+        nEstaciones++;//Incrementa el contador de estaciones
     }
-    archivo.close();
+    archivo.close();//Cierra el archivo despues de procesar todas las estaciones
+    return;
 }
 void RedEstaciones::crearEstacion() {
     // Verificar si ya se alcanzó el límite de estaciones
@@ -177,8 +214,7 @@ void RedEstaciones::crearEstacion() {
         return;
     }
 
-    string nombre, gerente, region;
-    float longitud, latitud;
+    string nombre, gerente, region, longitud, latitud;
     short capacidadRegular, capacidadPremium, capacidadEcoExtra;
 
     // Asignar el identificador automáticamente según la posición en el arreglo
@@ -193,26 +229,6 @@ void RedEstaciones::crearEstacion() {
 
     cout << "Ingresa la region: ";
     getline(cin, region);
-
-    // Validar la entrada para la longitud
-    cout << "Ingresa la longitud: ";
-    while (true) {
-        string aux;
-        getline(cin, aux);
-        longitud = convertirAFloat(aux); // Usamos la función convertirAFloat
-        if (longitud != 0.0 || aux == "0") break; // Acepta si es un número válido o es cero
-        cout << "Error: Ingresa un valor válido para la longitud." << endl;
-    }
-
-    // Validar la entrada para la latitud
-    cout << "Ingresa la latitud: ";
-    while (true) {
-        string aux;
-        getline(cin, aux);
-        latitud = convertirAFloat(aux); // Usamos la función convertirAFloat
-        if (latitud != 0.0 || aux == "0") break; // Acepta si es un número válido o es cero
-        cout << "Error: Ingresa un valor válido para la latitud." << endl;
-    }
 
     // Validar las capacidades de combustible (máximo 200)
     cout << "Ingresa la capacidad maxima de combustible Regular (máximo 200): ";
@@ -243,22 +259,34 @@ void RedEstaciones::crearEstacion() {
     }
 
     // Crear la nueva estación de servicio con los datos ingresados
-    EstacionDeServicio* nuevaEstacion = new EstacionDeServicio(
-        identificador, nombre, gerente, region, longitud, latitud,
-        capacidadRegular, capacidadPremium, capacidadEcoExtra
-        );
+    EstacionDeServicio* nuevaEstacion = new EstacionDeServicio(identificador, nombre, gerente, region, longitud, latitud, capacidadRegular, capacidadPremium, capacidadEcoExtra);
 
     // Agregar la nueva estación al arreglo de estaciones
     Estaciones[nEstaciones++] = nuevaEstacion;
 
     cout << "Estacion creada y agregada correctamente. Identificador asignado: " << identificador << endl;
 }
-void RedEstaciones::eliminarEstacion(short int identificador){
+void RedEstaciones::eliminarEstacion(short int identificador) {
     bool estacionEliminada = false;
+
     // Buscar la estación con el identificador
     for (int i = 0; i < nEstaciones; ++i) {
         if (Estaciones[i] && Estaciones[i]->getIdentificador() == identificador) {
-            // Liberar la memoria de la estación encontrada
+
+            // Verificación de surtidores activos antes de eliminar la estación
+            bool tieneSurtidoresActivos = false;
+            for (int j = 0; j < Estaciones[i]->nSurtidores; ++j) {
+                if (Estaciones[i]->Surtidores[j] && Estaciones[i]->Surtidores[j]->estado == true) { // Asegúrate de que `estado` es la forma correcta de acceder al estado del surtidor
+                    tieneSurtidoresActivos = true;
+                    break;
+                }
+            }
+            // Si hay surtidores activos, no se puede eliminar la estación
+            if (tieneSurtidoresActivos) {
+                cout << "No se puede eliminar la estación porque tiene surtidores activos." << endl;
+                return;
+            }
+            // Si no tiene surtidores activos, procede a eliminar la estación
             delete Estaciones[i];
             estacionEliminada = true;
 
@@ -266,12 +294,11 @@ void RedEstaciones::eliminarEstacion(short int identificador){
             for (int j = i; j < nEstaciones - 1; ++j) {
                 Estaciones[j] = Estaciones[j + 1];
             }
-
             // La última posición se marca como nullptr
             Estaciones[nEstaciones - 1] = nullptr;
             nEstaciones--;  // Reducir el número total de estaciones
 
-            cout << "Estacion con identificador " << identificador << " eliminada y reorganizada." << endl;
+            cout << "Estación con identificador " << identificador << " eliminada y reorganizada." << endl;
             return;
         }
     }
@@ -279,3 +306,4 @@ void RedEstaciones::eliminarEstacion(short int identificador){
         cout << "No se encontró ninguna estación con el identificador " << identificador << "." << endl;
     }
 }
+

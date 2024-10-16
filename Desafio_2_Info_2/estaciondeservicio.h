@@ -10,13 +10,15 @@ using namespace std;
 class EstacionDeServicio
 {
 public:
-    EstacionDeServicio(short int _identificador, string _nombre, string _gerente, string _region, float _longitud, float _altitud, short int _Regular, short int _Premium, short int _EcoExtra);
+    EstacionDeServicio(short int _identificador, string _nombre, string _gerente, string _region, string _longitud, string _altitud, short int _Regular, short int _Premium, short int _EcoExtra);
     int nSurtidores = 0;
     const int maxSurtidores = 12;
     Surtidor* Surtidores[12];
+    bool estado = true;
 
-    void crearSurtidor(short int _codigoID, string _modelo);
+    void crearSurtidor(short int _codigoID, string _modelo, bool _estado);
     void eliminarSurtidor(short codigoID);
+    void activarDesactivarSurtidor(short codigoID);
 
     short getIdentificador() const;
     void setIdentificador(short newIdentificador);
@@ -26,10 +28,10 @@ public:
     void setGerente(const string &newGerente);
     string getRegion() const;
     void setRegion(const string &newRegion);
-    float getLongitud() const;
-    void setLongitud(float newLongitud);
-    float getAltitud() const;
-    void setAltitud(float newAltitud);
+    string getLongitud() const;
+    void setLongitud(string newLongitud);
+    string getAltitud() const;
+    void setAltitud(string newAltitud);
     short getRegular() const;
     void setRegular(short newRegular);
     short getPremium() const;
@@ -43,8 +45,8 @@ private:
     string nombre;
     string gerente;
     string region;
-    float longitud;
-    float altitud;
+    string longitud;
+    string altitud;
     short int Regular;
     short int Premium;
     short int EcoExtra;

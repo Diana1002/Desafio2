@@ -15,10 +15,11 @@ public:
     void crearEstacion();
     void cargarRed(string path);
     void eliminarEstacion(short int identificador);
+    EstacionDeServicio* Estaciones[35];
+    void calcularMontoTotalPorCategoria();
 private:
     int nEstaciones = 0;
     const int maxEstaciones = 35;
-    EstacionDeServicio* Estaciones[35];
     int precioRegular;
     int precioPremium;
     int preciosEcoExtra;

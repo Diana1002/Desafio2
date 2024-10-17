@@ -46,7 +46,7 @@ EstacionDeServicio::EstacionDeServicio(short _identificador, string _nombre, str
  * _modelo: Modelo del surtidor.
  */
 
-void EstacionDeServicio::crearSurtidor(short _codigoID, string _modelo, bool _estado)
+void EstacionDeServicio::crearSurtidor(short int _codigoID, string _modelo, bool _estado)
 {
     Surtidores[nSurtidores++] = new Surtidor(_codigoID, _modelo, _estado);
     nSurtidores %= maxSurtidores;
@@ -80,17 +80,21 @@ void EstacionDeServicio::eliminarSurtidor(short codigoID) {
         cout << "No se encontró ningún surtidor con el código " << codigoID << "." << endl;
     }
 }
+//verifica este metodo, tal parece que no cambia el estado del surtidor
 void EstacionDeServicio::activarDesactivarSurtidor(short codigoID) {
-    for (int i = 0; i < nSurtidores; ++i) {
-        if (Surtidores[i] && Surtidores[i]->codigoID == codigoID) {
-            Surtidores[i]->estado = !Surtidores[i]->estado; // Cambiar el estado del surtidor
-            cout << "Surtidor con codigo " << codigoID << " ha sido "
-                 << (Surtidores[i]->estado ? "activado." : "desactivado.") << endl;
-            return;
+    for (Surtidor *&ptr : Surtidores) {  // Iteramos sobre el arreglo de punteros a Surtidor
+
+        if (ptr != nullptr && ptr->codigoID == codigoID) {  // Verificamos que el puntero no sea nulo y que coincida el ID
+
+            ptr->estado = !ptr->estado;  // Invertir el estado del surtidor
+            cout << "Surtidor con código " << codigoID << " ha sido "
+                 << (ptr->estado ? "activado." : "desactivado.") << endl;
+            return;  // Salir de la función una vez se haya encontrado y cambiado el estado
         }
     }
     cout << "No se encontró ningún surtidor con el código " << codigoID << "." << endl;
 }
+
 
 //Devuelve el identificador de la estación. Retorna Identificador de la estación.
 short EstacionDeServicio::getIdentificador() const

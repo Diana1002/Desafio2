@@ -14,7 +14,8 @@ public:
     int nSurtidores = 0;
     const int maxSurtidores = 12;
     Surtidor* Surtidores[12];
-    bool estado = true;
+    //bool estado;
+
 
     void crearSurtidor(short int _codigoID, string _modelo, bool _estado);
     void eliminarSurtidor(short codigoID);

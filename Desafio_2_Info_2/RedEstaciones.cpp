@@ -102,22 +102,22 @@ float RedEstaciones::convertirAFloat(const string& str){
  * Procesa un archivo de texto donde cada línea contiene los datos de una estación de servicio y sus surtidores asociados.
  * Se separan los datos relevantes, se crean las estaciones y surtidores, y se registran las ventas.
  */
+bool ContadorLinea1=true;
 void RedEstaciones:: abrirBaseDatos(){
     //Abrir el archvio de la base de datos
     ifstream archivo(nomArchivo);
     string linea;
-
+    bool ContadorLinea1=true;
     //Verificar si el archivo pudo abrirse correctamente
     if (!archivo.is_open()){
         cerr<< "No se pudo abrir el archivo"<<endl;
         return ;
     }
-
     //Procesa cada linea del archvio (cada linea representa una E/S)
-    bool ContadorLinea1=true;
     while (getline(archivo, linea)){
-        if(ContadorLinea1){
-            string linea0[1];
+        if(ContadorLinea1==true){
+            int maxBLinea0 =1;
+            string linea0[maxBLinea0];
             string precios[3];
             int cntB=0;
             SepararString(linea,"[","]",linea0, cntB);
@@ -128,6 +128,7 @@ void RedEstaciones:: abrirBaseDatos(){
             preciosEcoExtra = convertirAEntero(precios[2]);
 
             ContadorLinea1=false;
+            continue;
         }
 
         const int MAX_BLOQUES = 62;  // Número máximo de bloques (1 de la info de la estacion, 12 surtidores y 5 ventas max por cada uno
@@ -142,7 +143,7 @@ void RedEstaciones:: abrirBaseDatos(){
         int cantBloque1 = 0;  // Contador de bloques de información de la estación
 
 
-        SepararString(bloques[1], ",",",", bloque1, cantBloque1); //Separar los campos del primer bloque de la estación por comas(,)
+        SepararString(bloques[0], ",",",", bloque1, cantBloque1); //Separar los campos del primer bloque de la estación por comas(,)
 
         //Asigna los valores de los campos a la varriable que corresponda
         string nomEstacion = bloque1[1], gerente = bloque1[2], region = bloque1[3];
@@ -164,15 +165,17 @@ void RedEstaciones:: abrirBaseDatos(){
 
         SepararString(bloques[1],",",",",bloque2,cantBloque2);//Separar los campos de los surtidores por comas (,)
         //Crear los surtidores asociados a la estación
+        bool estado;
         for (int i = 0; i<cantBloque2; i+=3){
-            short codigoSurtidor = convertirAEntero(bloque2[i]);
+            short int codigoSurtidor = convertirAEntero(bloque2[i]);
             string modeloSurtidor = bloque2[i+1];
-            bool estado=false;
+
             if(bloque2[i+2]=="activo"){
                 estado = true;
             }
             Estaciones[nEstaciones]->crearSurtidor(codigoSurtidor, modeloSurtidor, estado);
         }
+        estado = false;
 
         //Procesa el resto de bloques que son las ventas realizadas en los surtidores
         for(int i = 2; i<cantidadBloques;i++){
@@ -190,18 +193,19 @@ void RedEstaciones:: abrirBaseDatos(){
                 //Verifica si el codigo del surtidor coincide con el de la venta
                 if(ptr->codigoID == convertirAEntero(Bloquesi[0])){
                     //Realiza la venta en el surtidor encontrado
-                    ptr->Vender(Bloquesi[2],Bloquesi[3],Bloquesi[4],Bloquesi[5],Bloquesi[6],Bloquesi[7],Bloquesi[8]);
+                    ptr->Vender(Bloquesi[0],Bloquesi[1],Bloquesi[2],Bloquesi[3],Bloquesi[4],Bloquesi[5],Bloquesi[6],Bloquesi[7]);
                     encontrado = true;
                     break;
                 }
             }
             //Si no se encontro el surtidor, entonces lo creaa
             if(!encontrado){
-                Estaciones[nEstaciones]->crearSurtidor(convertirAEntero(Bloquesi[0]), Bloquesi[1],true);
+                Estaciones[nEstaciones]->crearSurtidor(convertirAEntero(Bloquesi[0]), Bloquesi[1], estado);
                 int posicion = Estaciones[nEstaciones]->nSurtidores;
-                Estaciones[nEstaciones]->Surtidores[posicion-1]->Vender(Bloquesi[2],Bloquesi[3],Bloquesi[4],Bloquesi[5],Bloquesi[6],Bloquesi[7],Bloquesi[8]);
+                Estaciones[nEstaciones]->Surtidores[posicion-1]->Vender(Bloquesi[0],Bloquesi[1],Bloquesi[2],Bloquesi[3],Bloquesi[4],Bloquesi[5],Bloquesi[6],Bloquesi[7]);
             }
         }
+
         nEstaciones++;//Incrementa el contador de estaciones
     }
     archivo.close();//Cierra el archivo despues de procesar todas las estaciones
@@ -283,7 +287,7 @@ void RedEstaciones::eliminarEstacion(short int identificador) {
             }
             // Si hay surtidores activos, no se puede eliminar la estación
             if (tieneSurtidoresActivos) {
-                cout << "No se puede eliminar la estación porque tiene surtidores activos." << endl;
+                cout << "No se puede eliminar la estacion porque tiene surtidores activos." << endl;
                 return;
             }
             // Si no tiene surtidores activos, procede a eliminar la estación
@@ -298,12 +302,51 @@ void RedEstaciones::eliminarEstacion(short int identificador) {
             Estaciones[nEstaciones - 1] = nullptr;
             nEstaciones--;  // Reducir el número total de estaciones
 
-            cout << "Estación con identificador " << identificador << " eliminada y reorganizada." << endl;
+            cout << "Estacion con identificador " << identificador << " eliminada y reorganizada." << endl;
             return;
         }
     }
     if (!estacionEliminada) {
-        cout << "No se encontró ninguna estación con el identificador " << identificador << "." << endl;
+        cout << "No se encontro ninguna estacion con el identificador " << identificador << "." << endl;
     }
+}
+void RedEstaciones::calcularMontoTotalPorCategoria() {
+    int totalRegular = 0, totalPremium = 0, totalEcoExtra = 0;
+    string bloques[8];
+    int cantidadBloques;
+
+    for (EstacionDeServicio *estacion : Estaciones) {  // Recorrer todas las estaciones
+        if (estacion != nullptr) {
+            for (Surtidor *surtidor : estacion->Surtidores) {  // Recorrer todos los surtidores de la estación
+                if (surtidor != nullptr) {
+                    for (int i = 0; i < surtidor->maxVentas; i++) {  // Recorrer todas las ventas del surtidor
+                        if (surtidor->registroVentas[i] != nullptr) {
+                            // Separar los datos de la venta
+                            SepararString(*surtidor->registroVentas[i], ",", ",", bloques, cantidadBloques);
+
+                            // Obtener la categoría y la cantidad de litros
+                            string categoria = bloques[3];  // Categoría de combustible (Regular, Premium, EcoExtra)
+                            short int cantidadLitros = convertirAEntero(bloques[2]);
+
+                            // Calcular el total según la categoría
+                            if (categoria == "Regular") {
+                                totalRegular += cantidadLitros * precioRegular;
+                            } else if (categoria == "Premium") {
+                                totalPremium += cantidadLitros * precioPremium;
+                            } else if (categoria == "EcoExtra") {
+                                totalEcoExtra += cantidadLitros * preciosEcoExtra;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Mostrar resultados
+    cout << "Monto y total de ventas por categoria de combustible:" << endl;
+    cout << "Regular: $" << totalRegular <<"Litros vendidos"<<totalRegular/precioRegular <<endl;
+    cout << "Premium: $" << totalPremium <<"Litros vendidos"<<totalPremium/precioPremium<< endl;
+    cout << "EcoExtra: $" << totalEcoExtra <<"Litros vendidos"<<totalEcoExtra/preciosEcoExtra<< endl;
 }
 

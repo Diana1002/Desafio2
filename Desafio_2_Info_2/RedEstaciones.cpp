@@ -98,7 +98,7 @@ float RedEstaciones::convertirAFloat(const string& str){
     if (negativo) resultado = -resultado;
     return resultado;
 }
-/**abrirBaseDatos: Abre el archivo que contiene la base de datos y carga las estaciones y surtidores.
+/**class abrirBaseDatos: Abre el archivo que contiene la base de datos y carga las estaciones y surtidores.
  * Procesa un archivo de texto donde cada línea contiene los datos de una estación de servicio y sus surtidores asociados.
  * Se separan los datos relevantes, se crean las estaciones y surtidores, y se registran las ventas.
  */
@@ -211,6 +211,13 @@ void RedEstaciones:: abrirBaseDatos(){
     archivo.close();//Cierra el archivo despues de procesar todas las estaciones
     return;
 }
+/**crearEstacion: Crea una nueva estación de servicio y la agrega al arreglo de estaciones.
+ *
+ * Este método verifica si se ha alcanzado el límite de estaciones permitidas (35). Si no se ha alcanzado,
+ * solicita al usuario los datos de la nueva estación, valida las capacidades de combustible y la añade
+ * al arreglo de estaciones.
+ *
+ */
 void RedEstaciones::crearEstacion() {
     // Verificar si ya se alcanzó el límite de estaciones
     if (nEstaciones >= 35) {
@@ -270,6 +277,15 @@ void RedEstaciones::crearEstacion() {
 
     cout << "Estacion creada y agregada correctamente. Identificador asignado: " << identificador << endl;
 }
+/**
+ * eliminarEstacion: Elimina una estación de servicio dado su identificador.
+ *
+ * Este método busca una estación de servicio usando su identificador y la elimina, reorganizando
+ * el arreglo de estaciones. Antes de eliminar, verifica si la estación tiene surtidores activos
+ * y, de ser así, no permite la eliminación.
+ *
+ * identificador: El identificador de la estación a eliminar.
+ */
 void RedEstaciones::eliminarEstacion(short int identificador) {
     bool estacionEliminada = false;
 
@@ -310,6 +326,12 @@ void RedEstaciones::eliminarEstacion(short int identificador) {
         cout << "No se encontro ninguna estacion con el identificador " << identificador << "." << endl;
     }
 }
+/**
+ * calcularMontoTotalporCategoria: Calcula el monto total de ventas por categoría de combustible.
+ *
+ * Este método recorre todas las estaciones de la red, accediendo a los surtidores y sus ventas
+ * para calcular el monto total por cada categoría de combustible (Regular, Premium, EcoExtra).
+ */
 void RedEstaciones::calcularMontoTotalPorCategoria() {
     int totalRegular = 0, totalPremium = 0, totalEcoExtra = 0;
     string bloques[8];
@@ -343,10 +365,100 @@ void RedEstaciones::calcularMontoTotalPorCategoria() {
         }
     }
 
+    litrosVendidoR = totalRegular/precioRegular;
+    litrosVendidoP = totalPremium/precioPremium;
+    litrosVendidoE = totalEcoExtra/preciosEcoExtra;
     // Mostrar resultados
     cout << "Monto y total de ventas por categoria de combustible:" << endl;
-    cout << "Regular: $" << totalRegular <<"Litros vendidos"<<totalRegular/precioRegular <<endl;
-    cout << "Premium: $" << totalPremium <<"Litros vendidos"<<totalPremium/precioPremium<< endl;
-    cout << "EcoExtra: $" << totalEcoExtra <<"Litros vendidos"<<totalEcoExtra/preciosEcoExtra<< endl;
+    cout << "Regular: $" << totalRegular <<" Litros vendidos: "<<litrosVendidoR <<endl;
+    cout << "Premium: $" << totalPremium <<" Litros vendidos: "<<litrosVendidoP<< endl;
+    cout << "EcoExtra: $" << totalEcoExtra <<" Litros vendidos: "<<litrosVendidoE<< endl;
 }
+/**
+ * guardarBaseDatos: Guarda la base de datos de estaciones y surtidores en un archivo.
+ *
+ * Este método guarda la información de las estaciones, sus surtidores y las ventas
+ * realizadas en los surtidores, todo en un archivo de texto. El formato de salida
+ * incluye los precios de los combustibles y los detalles de cada estación.
+ *
+ * path: La ruta donde se guardará el archivo.
+ */
+void RedEstaciones::guardarBaseDatos(string path) {
+    string nom = path;
+    ofstream archivo(nom);
+    // Verifica si se pudo abrir el archivo
+    if (!archivo.is_open()) {
+        cerr << "No se pudo abrir el archivo para guardar los datos" << endl;
+        return;
+    }
+    // Guardar los precios de los combustibles
+    archivo << "[," << precioRegular << "," << precioPremium << "," << preciosEcoExtra << ",]" << endl;
+    // Iterar sobre las estaciones
+    for (int i = 0; i < nEstaciones; ++i) {
+        EstacionDeServicio* estacion = Estaciones[i];
+        // Guardar la información de la estación
+        archivo << "[," << estacion->identificador << ","
+                << estacion->nombre << ","
+                << estacion->gerente << ","
+                << estacion->region << ","
+                << estacion->longitud << ","
+                << estacion->latitud << ","
+                << estacion->Regular << ","
+                << estacion->Premium << ","
+                << estacion->EcoExtra << ",]";
 
+        // Guardar la información de los surtidores asociados a la estación
+        archivo << "[,";
+        for (int j = 0; j < estacion->nSurtidores; ++j) {
+            Surtidor* surtidor = estacion->Surtidores[j];
+            archivo << surtidor->codigoID << ","<< surtidor->modelo << ","<< (surtidor->estado ? "activo" : "inactivo");
+            // Si no es el último surtidor, agregar una coma
+            if (j != estacion->nSurtidores - 1) {
+                archivo << ",";
+            }
+        }
+        archivo << ",]";
+        // Guardar las ventas realizadas en los surtidores
+        for (int j = 0; j < estacion->nSurtidores; ++j) {
+            Surtidor* surtidor = estacion->Surtidores[j];
+
+            // Iterar sobre el registro de ventas del surtidor
+            for (int k = 0; k < surtidor->maxVentas; ++k) {
+                if (surtidor->registroVentas[k] != nullptr) {
+                    archivo << "[,"
+                            << *surtidor->registroVentas[k] << ",]";
+                }
+            }
+        }
+        // Nueva línea para la próxima estación
+        archivo << endl;
+    }
+    // Cierra el archivo
+    archivo.close();
+}
+/**
+ * Libera la memoria utilizada por los arreglos dinámicos de estaciones y surtidores.
+ *
+ * Este método recorre todas las estaciones y libera la memoria asociada a los surtidores y
+ * las ventas. Luego, libera las estaciones en sí, asegurándose de evitar fugas de memoria.
+ */
+void RedEstaciones::liberarMemoria() {
+    // Recorrer todas las estaciones
+    for (int i = 0; i < nEstaciones; ++i) {
+        if (Estaciones[i] != nullptr) {
+            // Recorrer todos los surtidores de la estación
+            for (int j = 0; j < Estaciones[i]->nSurtidores; ++j) {
+                if (Estaciones[i]->Surtidores[j] != nullptr) {
+                    // Liberar las ventas de cada surtidor
+                    for (int k = 0; k < Estaciones[i]->Surtidores[j]->maxVentas; ++k) {
+                            delete Estaciones[i]->Surtidores[j]->registroVentas[k];
+                        }
+                }
+                // Liberar el surtidor
+                delete Estaciones[i]->Surtidores[j];
+            }
+        }
+        // Liberar la estación
+        delete Estaciones[i];
+    }
+}

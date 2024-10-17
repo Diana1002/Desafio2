@@ -23,14 +23,14 @@
  * _Premium: Disponibilidad de combustible Premium.
  * _EcoExtra: Disponibilidad de combustible EcoExtra.
 */
-EstacionDeServicio::EstacionDeServicio(short _identificador, string _nombre, string _gerente, string _region, string _longitud, string _altitud, short _Regular, short _Premium, short _EcoExtra)
+EstacionDeServicio::EstacionDeServicio(short _identificador, string _nombre, string _gerente, string _region, string _longitud, string _latitud, short _Regular, short _Premium, short _EcoExtra)
 {
     identificador = _identificador;
     nombre = _nombre;
     gerente = _gerente;
     region = _region;
     longitud = _longitud;
-    altitud = _altitud;
+    latitud = _latitud;
     Regular = _Regular;
     Premium = _Premium;
     EcoExtra = _EcoExtra;
@@ -52,7 +52,14 @@ void EstacionDeServicio::crearSurtidor(short int _codigoID, string _modelo, bool
     nSurtidores %= maxSurtidores;
 }
 /**
-*/
+ * eliminarSurtidor: Eliminar un surtidor de la estación de servicio basado en su código ID.
+ *
+ * Este método busca el surtidor con el código ID proporcionado, lo elimina y reorganiza
+ * el arreglo de surtidores, desplazando todos los elementos subsiguientes una posición
+ * hacia atrás. Si no se encuentra el surtidor, imprime un mensaje indicándolo.
+ *
+ * codigoID: Código identificador del surtidor que se desea eliminar.
+ */
 void EstacionDeServicio::eliminarSurtidor(short codigoID) {
     bool surtidorEliminado = false;
 
@@ -80,7 +87,15 @@ void EstacionDeServicio::eliminarSurtidor(short codigoID) {
         cout << "No se encontró ningún surtidor con el código " << codigoID << "." << endl;
     }
 }
-//verifica este metodo, tal parece que no cambia el estado del surtidor
+
+/**
+ * activarDesactivarSurtidor: Activa o desactiva un surtidor basado en su código ID.
+ * Busca el surtidor con el código ID proporcionado y cambia su estado de activo
+ * a inactivo o viceversa. Si no se encuentra el surtidor, imprime un mensaje indicándolo.
+ *
+ * codigoID: Código identificador del surtidor que se desea activar/desactivar.
+ */
+
 void EstacionDeServicio::activarDesactivarSurtidor(short codigoID) {
     for (Surtidor *&ptr : Surtidores) {  // Iteramos sobre el arreglo de punteros a Surtidor
 
@@ -89,19 +104,53 @@ void EstacionDeServicio::activarDesactivarSurtidor(short codigoID) {
             ptr->estado = !ptr->estado;  // Invertir el estado del surtidor
             cout << "Surtidor con código " << codigoID << " ha sido "
                  << (ptr->estado ? "activado." : "desactivado.") << endl;
-            return;  // Salir de la función una vez se haya encontrado y cambiado el estado
+            return;
         }
     }
     cout << "No se encontró ningún surtidor con el código " << codigoID << "." << endl;
 }
+/**
+ * verificarCapacidades: Verifica si hay suficiente combustible disponible en una categoría específica.
+ *
+ * Verifica si la cantidad solicitada de combustible en una categoría específica
+ * está disponible en la estación de servicio. Imprime un mensaje si la cantidad solicitada
+ * excede la capacidad disponible o si la categoría de combustible no es válida.
+ *
+ * categoria: Nombre de la categoría de combustible ("Regular", "Premium", "EcoExtra").
+ * cantidad: Cantidad de combustible solicitada.
+ * Retorna true: Si la cantidad solicitada está disponible.
+ * Retorna false: Si no hay suficiente combustible disponible.
+ */
+
+bool EstacionDeServicio::verificarCapacidades(string categoria, int cantidad) {
+    if (categoria == "Regular") {
+        if (cantidad > Regular) {
+            cout << "No hay suficiente combustible Regular disponible." << endl;
+            return false;
+        }
+    } else if (categoria == "Premium") {
+        if (cantidad > Premium) {
+            cout << "No hay suficiente combustible Premium disponible." << endl;
+            return false;
+        }
+    } else if (categoria == "EcoExtra") {
+        if (cantidad > EcoExtra) {
+            cout << "No hay suficiente combustible EcoExtra disponible." << endl;
+
+            return false;
+        }
+    } else {
+        cout << "Categoría de combustible no válida." << endl;
+        return false;
+    }
+    return true; // La cantidad está disponible
+}
 
 
-//Devuelve el identificador de la estación. Retorna Identificador de la estación.
 short EstacionDeServicio::getIdentificador() const
 {
     return identificador;
 }
-//Asirna un nuevo identificador a la estación. newIdentidicador es el nuevo identificador para la estación
 void EstacionDeServicio::setIdentificador(short newIdentificador)
 {
     identificador = newIdentificador;
@@ -138,13 +187,13 @@ void EstacionDeServicio::setLongitud(string newLongitud)
 {
     longitud = newLongitud;
 }
-string EstacionDeServicio::getAltitud() const
+string EstacionDeServicio::getLatitud() const
 {
-    return altitud;
+    return latitud;
 }
-void EstacionDeServicio::setAltitud(string newAltitud)
+void EstacionDeServicio::setLatitud(string newLatitud)
 {
-    altitud = newAltitud;
+    latitud = newLatitud;
 }
 short EstacionDeServicio::getRegular() const
 {

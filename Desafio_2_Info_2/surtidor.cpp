@@ -1,4 +1,8 @@
 #include "surtidor.h"
+#include <iostream>
+
+
+using namespace std;
 
 /*@class Surtidor:
  * Representa un surtidor de gasolina que registra las ventas realizadas por un
@@ -41,13 +45,9 @@ Surtidor::Surtidor(short int _codigoID, string _modelo, bool _estado) {
  * cedula: Cédula del cliente
  * dinero:Monto de dinero recibido
 */
-void Surtidor::Vender(string id,string fecha, string hora, string cantidad, string categoria, string metPago, string cedula, string dinero)
+void Surtidor::Vender(string id, string fecha, string hora, string cantidad, string categoria, string metPago, string cedula, string dinero)
 {
-    string venta = id+","+fecha+","+hora+","+cantidad+","+categoria+","+metPago+","+cedula+","+dinero;
+    string venta = id + "," + fecha + "," + hora + "," + cantidad + "," + categoria + "," + metPago + "," + cedula + "," + dinero;
     registroVentas[intRegistro] = new string(venta);
-
-    intRegistro += 1;
-    intRegistro %= maxVentas;//Cuando el maximo de ventas es 5 se reinicia a la posicion 0
+    intRegistro = (intRegistro + 1) % maxVentas; // Actualiza el índice
 }
-
-

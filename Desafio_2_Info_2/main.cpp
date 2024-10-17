@@ -13,7 +13,8 @@ void mostrarMenu() {
     cout << "6. Activar/Desactivar surtidor" << endl;
     cout << "7. Registrar venta en surtidor" << endl;
     cout << "8. Calcular monto total de ventas por categoria de combustible" << endl;  // Nueva opción
-    cout << "9. Salir" << endl;
+    cout << "9. Guardar Red en archivo" << endl;
+    cout << "10. Salir" << endl;
     cout << "Seleccione una opcion: ";
 }
 
@@ -126,17 +127,26 @@ int main() {
                 cout << "Ingrese el monto de dinero recibido: ";
                 getline(cin, dinero);
 
-                // Llama al método para registrar la venta
                 redEstaciones.Estaciones[idEstacion]->Surtidores[codigoID]->Vender(to_string(codigoID), fecha, hora, cantidad, categoria, metPago, cedula, dinero);
                 cout << "Venta registrada correctamente." << endl;
                 break;
             }
+
             case 8: {  // Calcular el monto total de ventas por categoría de combustible
                 redEstaciones.calcularMontoTotalPorCategoria();
                 break;
             }
-            case 9: {
+            case 9: {  // Guardar la red de estaciones en un archivo
+                string path;
+                cout << "Ingrese la ruta del archivo para guardar la red de estaciones: ";
+                getline(cin, path);
+                redEstaciones.guardarBaseDatos(path);
+                cout<< "Informacion guardada correctamente";
+                break;
+            }
+            case 10: {
                 cout << "Saliendo del programa..." << endl;
+                redEstaciones.liberarMemoria();
                 break;
             }
             default: {
@@ -145,7 +155,7 @@ int main() {
             }
 
         }
-        } while (opcion != 9);
+        } while (opcion != 10);
 
     return 0;
 }

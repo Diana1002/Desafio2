@@ -1,7 +1,7 @@
 [,1000,3600,1800,]
 [,1,Estacion Norte 1,Juan Perez,Norte,40°42'46"N,74°00'21"W,150,150,100,][,1,MX-1,activo,2,MX-1,activo,][,1,12/10,17:05,15,Regular,Efectivo,105674309,15.000,]
 [,2,Estacion Sur 1,Ana Garcia,Sur,48°51'24"N,2°21'03"E,100,120,180,][,1,MY-3,activo,2,MX-2,activo,][,1,12/10,17:05,15,EcoExtra,Efectivo,105674309,15.000,]
-[,3,Estacion Centro 1,Pedro Martinez,Centro,34°03'08"S,18°25'26"E,170,170,160,][,1,MY-3,activo,2,MX-2,activo,]
+[,3,Estacion Centro 1,Pedro Martinez,Centro,34°03'08"S,18°25'26"E,170,170,160,][,1,MY-3,activo,2,MX-2,activo,][,1,12/10,17:05,18,EcoExtra,Efectivo,105674309,15.000,]
 [,4,Estacion Norte 2,Luis Gonzalez,Norte,35°41'22"N,139°41'30"E,100,160,140,][,1,MX-2,activo,2,MY-1,activo,]
 [,5,Estacion Sur 2,Carmen Ruiz,Sur,51°30'26"N,0°07'39"W,125,130,145,][,1,MY-1,activo,2,MX-1,activo,]
 [,6,Estacion Centro 2,Jose Hernandez,Centro,55°45'07"N,37°37'04"E,150,180,170,][,1,MY-3,activo,2,MX-3,activo,]

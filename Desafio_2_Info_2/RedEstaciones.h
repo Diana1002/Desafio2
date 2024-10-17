@@ -9,24 +9,31 @@ using namespace std;
 class RedEstaciones
 {
 public:
-    //Métodos
     RedEstaciones();
+    //ATRIBUTOS PUBLICOS
+    int litrosVendidoR;
+    int litrosVendidoP;
+    int litrosVendidoE;
+    EstacionDeServicio* Estaciones[35];
+    //METODOS PUBLICOS
     void abrirBaseDatos();
     void crearEstacion();
     void cargarRed(string path);
     void eliminarEstacion(short int identificador);
-    EstacionDeServicio* Estaciones[35];
     void calcularMontoTotalPorCategoria();
+    void guardarBaseDatos(string path);
+    short int convertirAEntero(const string& str);
+    void liberarMemoria();
 private:
+    //ATRIBUTOS PRIVADOS
     int nEstaciones = 0;
-    const int maxEstaciones = 35;
     int precioRegular;
     int precioPremium;
     int preciosEcoExtra;
-
     string nomArchivo;
+    const int maxEstaciones = 35;
+    //METODOS PRIVADOS
     void SepararString(const string& texto, const string& limitador1, const string& limitador2, string* bloques, int& cantidadBloques);
-    short int convertirAEntero(const string& str);
     float convertirAFloat(const string& str);
 };
 
